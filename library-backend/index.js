@@ -113,6 +113,9 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
+
+      console.log("argumentos", args, context);
+      
       const currentUser = context.currentUser;
 
       if (!currentUser) {

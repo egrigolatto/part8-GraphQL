@@ -10,7 +10,9 @@ const PersonForm = ({ setError }) => {
   const [city, setCity] = useState("");
 
   const [createPerson] = useMutation(CREATE_PERSON, {
-    refetchQueries: [{ query: ALL_PERSONS } /*{ query: OTHER_QUERY }*/],
+    refetchQueries: [
+      /*{ query: ALL_PERSONS } /*{ query: OTHER_QUERY }*/
+    ],
     onError: (error) => {
       // const errors = error.graphQLErrors[0].extensions.error.errors;
       // const messages = Object.values(errors)
@@ -22,12 +24,26 @@ const PersonForm = ({ setError }) => {
         setError("An unexpected error occurred");
       }
     },
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_PERSONS }, ({ allPersons }) => {
+        return {
+          allPersons: allPersons.concat(response.data.addPerson),
+        };
+      });
+    },
   });
 
   const submit = (event) => {
     event.preventDefault();
 
-    createPerson({ variables: { name, phone, street, city } });
+    createPerson({
+      variables: {
+        name,
+        street,
+        city,
+        phone: phone.length > 0 ? phone : undefined,
+      },
+    });
 
     setName("");
     setPhone("");

@@ -14,7 +14,28 @@ const NewBook = (props) => {
     onError: (error) => {
       console.error("Error adding book:", error.message);
     },
+    /*update: (cache, response) => {
+      // Actualizar el caché de los libros
+      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook),
+        };
+      });
+
+      // Actualizar el caché de los autores
+      const addedAuthor = response.data.addBook.author;
+      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+        // Verificamos si el autor ya está en el caché y si no, lo agregamos
+        if (!allAuthors.some((author) => author.name === addedAuthor.name)) {
+          return {
+            allAuthors: allAuthors.concat(addedAuthor),
+          };
+        }
+        return { allAuthors };
+      });
+    },*/
   });
+
 
   if (!props.show) {
     return null;
@@ -27,13 +48,20 @@ const NewBook = (props) => {
 
     const publishedInt = parseInt(published, 10);
 
-    addBook({ variables: { title, author, published: publishedInt, genres } });
+    if (!title || !author || isNaN(publishedInt) || genres.length === 0) {
+      alert("All fields are required, and published must be a number");
+      return;
+    }
+
+    await addBook({ variables: { title, author, published: publishedInt, genres } });
 
     setTitle("");
     setPublished("");
     setAuthor("");
     setGenres([]);
     setGenre("");
+
+    props.setPage("books");
   };
 
   const addGenre = () => {

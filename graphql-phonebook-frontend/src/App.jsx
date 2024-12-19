@@ -4,6 +4,8 @@ import PersonForm from "./components/PersonForm";
 import { ALL_PERSONS } from "./queries";
 import { useState } from "react";
 import PhoneForm from "./components/PhoneForm";
+import LoginForm from "./components/LoginForm";
+import { useApolloClient } from "@apollo/client";
 
 
 
@@ -12,6 +14,9 @@ const App = () => {
   const result = useQuery(ALL_PERSONS, {
     // pollInterval: 2000,
   });
+  const client = useApolloClient();
+
+  const [token, setToken] = useState(null);
 
   // console.log(result);
 
@@ -26,14 +31,30 @@ const App = () => {
     }, 10000);
   };
 
+  const logout = () => {
+    setToken(null);
+    localStorage.clear();
+    client.resetStore();
+  };
+
+  if (!token) {
+    return (
+      <>
+        <Notify errorMessage={errorMessage} />
+        <h2>login</h2>
+        <LoginForm setToken={setToken} setError={notify} />
+      </>
+    );
+  }
   return (
     <>
       <Notify errorMessage={errorMessage} />
+      <button onClick={logout}>logout</button>
       <Persons persons={result.data.allPersons} />
       <br />
       <PersonForm setError={notify} />
       <br />
-      <PhoneForm setError={notify}/>
+      <PhoneForm setError={notify} />
     </>
   );
 };
